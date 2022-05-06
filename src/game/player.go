@@ -39,6 +39,7 @@ func (self *Player) RecvSetIcon(iconId int) {
 	self.ModPlayer.setIcon(iconId, self)
 }
 
+// RecvSetIdcard 设置名片
 func (self *Player) RecvSetIdcard(idcard int) {
 	self.ModPlayer.setIdcard(idcard, self)
 }
