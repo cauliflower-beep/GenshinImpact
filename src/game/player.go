@@ -1,9 +1,9 @@
 package game
 
 type Player struct {
-	ModPlayer *ModPlayer
-	ModIcon   *ModIcon
-	ModIdcard *ModIdcard
+	ModPlayer *ModPlayer // 基础模块
+	ModIcon   *ModIcon   // 头像模块
+	ModIdcard *ModIdcard // 名片模块
 }
 
 func NewTestPlayer() *Player {
@@ -23,23 +23,24 @@ func NewTestPlayer() *Player {
 	return player
 }
 
-// RecvSetIcon
-/*
-类似设置头像这种请求，一定是外部可见的，因为他要跟客户端交互.
-还有一些接口是不能暴露的；例如玩家等级的提升，一定是通过服务器内部的逻辑去处理的，不能说客户端请求过来，想设置几级就设置几级的
-换言之，对外接口就是与客户端交互的接口；对内接口就是服务器内部逻辑调用的接口
-*/
-// 对外接口
-func (self *Player) RecvSetIcon(iconId int) {
-	/*
-		客户端直接跟Player玩家主体打交道.
-		Player收到消息之后再去调用其他模块来实现功能
-		这样写的好处是，当你想要调试的时候，第一个断点肯定是打在这个地方，首先确保收到的是想要的数据；进而再去模块内部检查
-	*/
-	self.ModPlayer.setIcon(iconId, self)
+// RecvSetIcon 设置头像
+func (p *Player) RecvSetIcon(iconId int) {
+	p.ModPlayer.setIcon(iconId, p)
 }
 
 // RecvSetIdcard 设置名片
-func (self *Player) RecvSetIdcard(idcard int) {
-	self.ModPlayer.setIdcard(idcard, self)
+func (p *Player) RecvSetIdcard(idcard int) {
+	p.ModPlayer.setIdcard(idcard, p)
+}
+
+// RecvSetName 设置玩家名字
+func (p *Player) RecvSetName(name string) {
+
+	p.ModPlayer.setName(name, p)
+}
+
+// RecvSetSignature 设置签名
+func (p *Player) RecvSetSignature(signature string) {
+
+	p.ModPlayer.setSignature(signature, p)
 }

@@ -7,25 +7,38 @@ package game
 */
 import (
 	"fmt"
+	"genshin-impact/src/csvs"
 	"regexp"
 	"time"
 )
 
-type MgrBanword struct {
-	BanwordBase  []string //基础违禁词库
-	BanwordExtra []string // 扩充违禁词库
+// mgrBanWord 违禁词单例
+var mgrBanWord *MgrBanWord
+
+type MgrBanWord struct {
+	BanWordBase  []string //基础违禁词库
+	BanWordExtra []string // 扩充违禁词库 定时更新
 }
 
-func (self *MgrBanword) IsBanword(txt string) bool {
+func GetMgrBanWord() *MgrBanWord {
+	// sync.Once 优化
+	if mgrBanWord == nil {
+		mgrBanWord = new(MgrBanWord)
+	}
+	return mgrBanWord
+}
 
-	for _, v := range self.BanwordBase {
+// IsBanWord 验证文本是否合法
+func (mbw *MgrBanWord) IsBanWord(txt string) bool {
+
+	for _, v := range mbw.BanWordBase {
 		match, _ := regexp.MatchString(v, txt)
 		fmt.Println(match, v)
 		if match {
 			return match
 		}
 	}
-	for _, v := range self.BanwordExtra {
+	for _, v := range mbw.BanWordExtra {
 		match, _ := regexp.MatchString(v, txt)
 		fmt.Println(match, v)
 		if match {
@@ -36,14 +49,15 @@ func (self *MgrBanword) IsBanword(txt string) bool {
 }
 
 // Run 定时扩充违禁词库，有个定时器，服务器启动的时候就会跟着启动
-func (self *MgrBanword) Run() {
-	ticker := time.NewTicker(time.Second * 1) // golang中的定时器本质上就是一个channel
+func (mbw *MgrBanWord) Run() {
+	mbw.BanWordBase = csvs.GetBanWordBase()
+	ticker := time.NewTicker(time.Second * 1) // tricker核心是一个channel
 	for {
 		select {
 		case <-ticker.C:
 			fmt.Println(time.Now().Unix())
 			if time.Now().Unix()%10 == 0 { //每10秒更新词库
-				fmt.Println("update banword")
+				fmt.Println("update banWord")
 			} else {
 				fmt.Println("standby...")
 			}

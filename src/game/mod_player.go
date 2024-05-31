@@ -2,49 +2,28 @@ package game
 
 import "fmt"
 
-/*
-玩家基础模块信息，上线要发给玩家的：
-1.uid
-2.头像、名片
-3.签名
-4.名字
-5.冒险等级、冒险阅历
-6.世界等级、冷却时间(可以临时设置世界等级，冷却时间到了之后可以恢复)
-7.生日
-8.展示阵容、展示名片
-*/
-
-/*
-这里的模块应该是对应数据库中的某一张表的;
-玩家登录之后，就会从数据库中取出这些数据，发给客户端
-*/
 type ModPlayer struct {
-	Uid          int64
-	Icon         int
-	IdCard       int
-	Signature    string
-	NickName     string
-	PlayerLevel  int
-	PlayerExp    int
-	WorldLevel   int
-	WorldLevelCd int64
-	Birthday     int
-	ShowTeam     map[int]int //英雄id：英雄等级
-	ShowCard     []int
-	// 看不见的字段
-	IsProhibit int // 是否黑名单 根据这个值决定后续是否获取其他模块的数据
+	Uid          int64       // uid
+	Icon         int         // 头像
+	IdCard       int         // 名片
+	Signature    string      // 签名
+	NickName     string      // 昵称
+	PlayerLevel  int         // 冒险等级
+	PlayerExp    int         // 冒险经验
+	WorldLevel   int         // 世界等级
+	WorldLevelCd int64       // 冷却时间  可以临时设置世界等级，冷却时间到了之后可以恢复
+	Birthday     int         // 生日
+	ShowTeam     map[int]int // 展示阵容 英雄id：英雄等级
+	ShowCard     []int       // 展示名片
+	// 看不见的字段 远比看得见的字段多
+	IsProhibit int // 是否黑名单 根据这个值决定后续是否获取其他模块的数据 不用布尔值是方便扩展
 	IsGm       int //该玩家是否gm号 游戏测试阶段还是需要大量的gm功能去辅助的
 }
 
-/*
-本项目中，接收客户端的消息一律用 Recv 开头.
-原神的头像包，只展示所有拥有的英雄集合；原理上来说就是玩家登录之后，拿到服务器的数据，做一遍初始化就可以；
-服务器方面，接收到客户端消息之后需要验证一下是否拥有该英雄；
-设想一下，假设客户端被破解了，添加了一个非法的icon，请求打过来，如果服务器不做验证，肯定是存在风险的
-*/
+// setIcon 设置头像
+func (mp *ModPlayer) setIcon(iconId int, player *Player) bool {
 
-func (self *ModPlayer) setIcon(iconId int, player *Player) bool {
-
+	// 这里必须做校验，试想，假设客户端被破解了，添加了一个非法的icon，请求打过来，如果服务器不做验证，肯定是存在风险的
 	if !player.ModIcon.isHasIcon(iconId) {
 		/*
 			没有请求的icon.
@@ -58,13 +37,8 @@ func (self *ModPlayer) setIcon(iconId int, player *Player) bool {
 	return true
 }
 
-// setIdcard
-/*
-原神的名片展示跟头像不太一样，是把所有的名片都展示了出来，分为解锁和未解锁两部分；
-这其实是策划的选择问题，如果是展示所有的名片，就是客户端读配置表，对名片做一个全局的初始化；
-对于服务器来说并没有什么不同，都是发送拥有的物品
-*/
-func (self *ModPlayer) setIdcard(idcard int, player *Player) bool {
+// setIdcard 设置名片
+func (mp *ModPlayer) setIdcard(idcard int, player *Player) bool {
 
 	if !player.ModIdcard.isHasIdcard(idcard) {
 		fmt.Printf("can not find %d !", idcard)
@@ -73,4 +47,28 @@ func (self *ModPlayer) setIdcard(idcard int, player *Player) bool {
 	player.ModPlayer.IdCard = idcard
 	fmt.Println("current idcard:", idcard)
 	return true
+}
+
+// setName 设置昵称
+func (mp *ModPlayer) setName(name string, player *Player) {
+	// 违禁词处理
+	if GetMgrBanWord().IsBanWord(name) {
+		fmt.Println("set name failed. name contains ban words")
+		return
+	}
+
+	player.ModPlayer.NickName = name
+	fmt.Println("[current name]|", player.ModPlayer.NickName)
+}
+
+// setSignature 设置签名
+func (mp *ModPlayer) setSignature(signature string, player *Player) {
+	// 违禁词处理
+	if GetMgrBanWord().IsBanWord(signature) {
+		fmt.Println("set signature failed. signature contains ban words")
+		return
+	}
+
+	player.ModPlayer.Signature = signature
+	fmt.Println("[current signature]|", player.ModPlayer.Signature)
 }
