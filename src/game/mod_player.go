@@ -77,7 +77,7 @@ func (mp *ModPlayer) setSignature(signature string, player *Player) {
 }
 
 // AddExp 增加经验
-func (mp *ModPlayer) AddExp(exp int) {
+func (mp *ModPlayer) AddExp(exp int, p *Player) {
 	// 这是一个内置接口，不需要做经验值校验
 	mp.PlayerExp += exp
 
@@ -92,7 +92,11 @@ func (mp *ModPlayer) AddExp(exp int) {
 			break
 		}
 
-		// 是否完成任务 todo
+		// 如果存在突破任务并且没有完成，直接跳出
+		if config.ChapterId > 0 && !p.ModUniqueTask.IsTaskCompleted(config.ChapterId) {
+			break
+		}
+
 		if mp.PlayerExp >= config.PlayerExp {
 			mp.PlayerLevel++
 			mp.PlayerExp -= config.PlayerExp

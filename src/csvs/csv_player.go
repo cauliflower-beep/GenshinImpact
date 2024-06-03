@@ -28,5 +28,5 @@ func GetCurrentLevelConfig(level int) *ConfigPlayerLevel {
 	if level < 0 || level >= len(ConfigPlayerLevelSlice) {
 		return nil
 	}
-	return ConfigPlayerLevelSlice[level]
+	return ConfigPlayerLevelSlice[level-1]
 }

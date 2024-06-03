@@ -1,9 +1,17 @@
 package game
 
+const (
+	// 原神在做任务的时候是没办法联机的，所以这里定义了几个任务状态
+	TASK_STATE_INIT   = iota
+	TASK_STATE_DOING  // 玩家进入副本
+	TASK_STATE_FINISH // 玩家完成副本
+)
+
 type Player struct {
-	ModPlayer *ModPlayer // 基础模块
-	ModIcon   *ModIcon   // 头像模块
-	ModIdcard *ModIdcard // 名片模块
+	ModPlayer     *ModPlayer     // 基础模块
+	ModIcon       *ModIcon       // 头像模块
+	ModIdcard     *ModIdcard     // 名片模块
+	ModUniqueTask *ModUniqueTask // 任务模块
 }
 
 func NewTestPlayer() *Player {
@@ -16,6 +24,7 @@ func NewTestPlayer() *Player {
 	player.ModPlayer = new(ModPlayer)
 	player.ModIcon = new(ModIcon)
 	player.ModIdcard = new(ModIdcard)
+	player.ModUniqueTask = new(ModUniqueTask)
 
 	/******************mod init end****************************************/
 	player.ModPlayer.PlayerLevel = 1 // 玩家等级初始为1级，否则后面从配置里面取等级配置是取不到的

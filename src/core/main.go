@@ -4,7 +4,6 @@ import (
 	"genshin-impact/src/csvs"
 	_ "genshin-impact/src/csvs"
 	"genshin-impact/src/game"
-	"time"
 )
 
 func main() {
@@ -30,14 +29,16 @@ func main() {
 	//go game.GetMgrBanWord().Run()
 
 	playerGM := game.NewTestPlayer()
-	tricker := time.NewTicker(time.Second)
-	for {
-		select {
-		case <-tricker.C:
-			if time.Now().Unix()%3 == 0 {
-				playerGM.ModPlayer.AddExp(5000)
-			}
-		}
-	}
+
+	playerGM.ModPlayer.AddExp(10000000, playerGM) // 由于存在突破任务，即使直接给10000000经验，也会卡在第一个突破任务的等级
+	//tricker := time.NewTicker(time.Second)
+	//for {
+	//	select {
+	//	case <-tricker.C:
+	//		if time.Now().Unix()%3 == 0 {
+	//			playerGM.ModPlayer.AddExp(5000, playerGM)
+	//		}
+	//	}
+	//}
 
 }
