@@ -1,6 +1,9 @@
 package game
 
-import "fmt"
+import (
+	"fmt"
+	"genshin-impact/src/csvs"
+)
 
 type ModPlayer struct {
 	Uid          int64       // uid
@@ -71,4 +74,31 @@ func (mp *ModPlayer) setSignature(signature string, player *Player) {
 
 	player.ModPlayer.Signature = signature
 	fmt.Println("[current signature]|", player.ModPlayer.Signature)
+}
+
+// AddExp 增加经验
+func (mp *ModPlayer) AddExp(exp int) {
+	// 这是一个内置接口，不需要做经验值校验
+	mp.PlayerExp += exp
+
+	// 经验是可以一直累加的，直到做了某个突破任务之后，一口气加上去，所以有可能连升多级
+	for {
+		config := csvs.GetCurrentLevelConfig(mp.PlayerLevel)
+		if config == nil {
+			// 日志打出来让策划去查配置是不是有问题
+			break
+		}
+		if config.PlayerExp == 0 {
+			break
+		}
+
+		// 是否完成任务 todo
+		if mp.PlayerExp >= config.PlayerExp {
+			mp.PlayerLevel++
+			mp.PlayerExp -= config.PlayerExp
+		} else {
+			break
+		}
+	}
+	fmt.Printf("[当前等级]^%d|[当前经验]^%d\n", mp.PlayerLevel, mp.PlayerExp)
 }

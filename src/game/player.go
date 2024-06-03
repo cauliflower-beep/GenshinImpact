@@ -18,8 +18,7 @@ func NewTestPlayer() *Player {
 	player.ModIdcard = new(ModIdcard)
 
 	/******************mod init end****************************************/
-	player.ModPlayer.Icon = 0
-	player.ModPlayer.IdCard = 0
+	player.ModPlayer.PlayerLevel = 1 // 玩家等级初始为1级，否则后面从配置里面取等级配置是取不到的
 	return player
 }
 
